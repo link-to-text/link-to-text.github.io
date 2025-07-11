@@ -32,21 +32,24 @@
 
     <!-- GitHub Star Button -->
     <div>
-      <iframe src="https://ghbtns.com/github-btn.html?user=yourusername&repo=scroll-to-text-generator&type=star&count=true"
-              frameborder="0" scrolling="0" width="100" height="20" title="GitHub"></iframe>
+      <iframe src="https://ghbtns.com/github-btn.html?user=link-to-text&repo=link-to-text.github.io&type=star&count=true"
+        width="150"
+        height="33"
+        title="GitHub"
+      ></iframe>
     </div>
 
     <!-- Input Fields -->
     <div class="space-y-4">
       <div>
-        <label class="block text-sm font-medium mb-1" for="input-url">Input URL</label>
-        <input id="input-url" type="text" placeholder="https://example.com/page"
+        <label class="block text-sm font-medium mb-1" for="js-input-url">Input URL</label>
+        <input id="js-input-url" type="text" placeholder="https://example.com/page"
                class="w-full border px-3 py-2 rounded shadow-sm" />
       </div>
 
       <div>
-        <label class="block text-sm font-medium mb-1" for="text-fragment">Text Fragment</label>
-        <input id="text-fragment" type="text" placeholder="exact text to highlight"
+        <label class="block text-sm font-medium mb-1" for="js-input-text-fragment">Text Fragment</label>
+        <input id="js-input-text-fragment" type="text" placeholder="exact text to highlight"
                class="w-full border px-3 py-2 rounded shadow-sm" />
       </div>
 
@@ -57,16 +60,16 @@
 
     <!-- Output URL -->
     <div class="relative">
-      <label class="block text-sm font-medium mb-1" for="output-url">Generated URL</label>
-      <input id="output-url" type="text" readonly
+      <label class="block text-sm font-medium mb-1" for="js-output-url">Generated URL</label>
+      <input id="js-output-url" type="text" readonly
              class="w-full border px-3 py-2 rounded bg-gray-100" />
       <div class="flex items-center mt-2 space-x-3">
         <button onclick="copyOutput()" class="bg-gray-300 px-2 py-1 rounded text-sm hover:bg-gray-400">Copy</button>
-        <a id="test-link" href="#" target="_blank"
+        <a id="js-output-test-link" href="javascript:void(0);" target="_blank"
            class="text-blue-600 underline text-sm hover:text-blue-800 hidden">
           Test link with selected text
         </a>
-        <span id="copy-msg" class="text-green-600 text-sm hidden">Copied!</span>
+        <span id="js-copy-massage" class="text-green-600 text-sm hidden">Copied!</span>
       </div>
     </div>
 
@@ -74,8 +77,8 @@
     <div>
       <label class="block font-semibold mb-1">HTML:</label>
       <div class="relative bg-gray-100 p-4 rounded">
-        <pre id="html-output" class="whitespace-pre-wrap break-words text-sm"></pre>
-        <button onclick="copyText('html-output')" class="absolute top-2 right-2 text-xs bg-gray-300 px-2 py-1 rounded hover:bg-gray-400">Copy</button>
+        <pre id="js-output-html" class="whitespace-pre-wrap break-words text-sm"></pre>
+        <button onclick="copyText('js-output-html')" class="absolute top-2 right-2 text-xs bg-gray-300 px-2 py-1 rounded hover:bg-gray-400">Copy</button>
       </div>
     </div>
 
@@ -83,15 +86,10 @@
     <div>
       <label class="block font-semibold mb-1">Markdown:</label>
       <div class="relative bg-gray-100 p-4 rounded">
-        <pre id="md-output" class="whitespace-pre-wrap break-words text-sm"></pre>
-        <button onclick="copyText('md-output')" class="absolute top-2 right-2 text-xs bg-gray-300 px-2 py-1 rounded hover:bg-gray-400">Copy</button>
+        <pre id="js-output-markdown" class="whitespace-pre-wrap break-words text-sm"></pre>
+        <button onclick="copyText('js-output-markdown')" class="absolute top-2 right-2 text-xs bg-gray-300 px-2 py-1 rounded hover:bg-gray-400">Copy</button>
       </div>
     </div>
-
-    <!-- Footer -->
-    <footer class="pt-12 text-sm text-gray-500 border-t">
-      Created with ❤️ using ChatGPT · <a class="underline" href="https://github.com/yourusername/scroll-to-text-generator" target="_blank">Source Code</a>
-    </footer>
 
     <!-- SEO Copy -->
     <section class="mt-12 text-gray-600 text-sm leading-relaxed">
@@ -106,42 +104,67 @@
         academic citations, support tickets, or internal tools. No extensions needed.
       </p>
     </section>
+
+    <!-- Footer -->
+    <footer class="pt-12 text-sm text-gray-500 border-t">
+      Created with ❤️ using ChatGPT · <a class="underline" href="https://github.com/link-to-text/link-to-text.github.io" target="_blank">Source Code</a>
+    </footer>
   </div>
 
   <script>
-    document.getElementById('generate').addEventListener('click', () => {
-      const url = document.getElementById('input-url').value.trim();
-      const text = document.getElementById('text-fragment').value.trim();
-      if (!url || !text) return;
+      {
+          const $inputURL = document.getElementById("js-input-url");
+          const $inputTextFragment = document.getElementById("js-input-text-fragment");
 
-      const encodedText = encodeURIComponent(text);
-      const fullUrl = `${url}#:~:text=${encodedText}`;
-      const htmlLink = `<a href="${fullUrl}">${text}</a>`;
-      const mdLink = `[${text}](${fullUrl})`;
+          const $outputURL = document.getElementById("js-output-url");
+          const $outputTestLink = document.getElementById("js-output-test-link");
+          const $outputHTML = document.getElementById("js-output-html");
+          const $outputMarkdown = document.getElementById("js-output-markdown");
 
-      document.getElementById('output-url').value = fullUrl;
-      document.getElementById('html-output').textContent = htmlLink;
-      document.getElementById('md-output').textContent = mdLink;
+          const $copyMessage = document.getElementById("js-copy-massage");
 
-      const testLink = document.getElementById('test-link');
-      testLink.href = fullUrl;
-      testLink.classList.remove('hidden');
+          document.getElementById("generate").addEventListener("click", () => {
+              const url = $inputURL.value.trim();
+              const text = $inputTextFragment.value.trim();
 
-      document.getElementById('copy-msg').classList.add('hidden');
-    });
+              if (!url || !text) {
+                  $outputURL.value = "";
+                  $outputHTML.textContent = "";
+                  $outputMarkdown.textContent = "";
+                  $outputTestLink.classList.add("hidden");
+                  $copyMessage.classList.add("hidden");
 
-    function copyText(id) {
-      const text = document.getElementById(id).textContent;
-      navigator.clipboard.writeText(text);
-    }
+                  return;
+              }
 
-    function copyOutput() {
-      const text = document.getElementById('output-url').value;
-      navigator.clipboard.writeText(text);
-      const msg = document.getElementById('copy-msg');
-      msg.classList.remove('hidden');
-      setTimeout(() => msg.classList.add('hidden'), 2000);
-    }
+              const encodedText = encodeURIComponent(text);
+              const fullUrl = `${url}#:~:text=${encodedText}`;
+              const htmlLink = `<a href="${fullUrl}">${text}</a>`;
+              const mdLink = `[${text}](${fullUrl})`;
+
+              $outputURL.value = fullUrl;
+              $outputHTML.textContent = htmlLink;
+              $outputMarkdown.textContent = mdLink;
+
+              $outputTestLink.href = fullUrl;
+              $outputTestLink.classList.remove("hidden");
+
+              $copyMessage.classList.add("hidden");
+          });
+
+          function copyText(id) {
+              const text = document.getElementById(id).textContent;
+              navigator.clipboard.writeText(text);
+          }
+
+          function copyOutput() {
+              const text = $outputURL.value;
+              navigator.clipboard.writeText(text);
+
+              $copyMessage.classList.remove("hidden");
+              setTimeout(() => $copyMessage.classList.add("hidden"), 2000);
+          }
+      }
   </script>
 </body>
 </html>
