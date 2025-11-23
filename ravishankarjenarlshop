@@ -1,0 +1,315 @@
+<!doctype html>
+
+<html lang="hi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ravi Shankar Electronic Shop — Online Store</title>
+  <style>
+    :root{--primary:#0b5ed7;--muted:#6b7280;--bg:#f5f7fb;--card:#ffffff}
+    *{box-sizing:border-box}
+    body{font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin:0; background:var(--bg); color:#111}
+    header{background:linear-gradient(90deg,var(--primary),#176be0); color:#fff; padding:18px 20px; display:flex;gap:16px;align-items:center;justify-content:space-between}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:56px;height:56px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--primary);font-weight:700}
+    nav a{color:rgba(255,255,255,0.95);text-decoration:none;margin:0 10px;font-weight:600}
+    main{max-width:1100px;margin:22px auto;padding:0 18px}
+    .hero{display:flex;gap:18px;align-items:center;background:linear-gradient(180deg,rgba(11,94,215,0.06),transparent);padding:18px;border-radius:12px}
+    .hero .left{flex:1}
+    .hero h1{margin:0 0 6px;font-size:20px}
+    .hero p{margin:0;color:var(--muted)}
+    .actions{display:flex;gap:10px;margin-top:12px}
+    .btn{background:var(--primary);color:#fff;padding:10px 14px;border-radius:8px;border:none;cursor:pointer}
+    .btn.ghost{background:transparent;border:1px solid rgba(11,94,215,0.12);color:var(--primary)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:18px}
+.card{background:var(--card);padding:12px;border-radius:10px;box-shadow:0 6px 18px rgba(19,23,31,0.04);display:flex;flex-direction:column}
+.product-image{background:#f3f5fb;border-radius:8px;height:160px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.price{font-weight:700;color:var(--primary)}
+.muted{color:var(--muted);font-size:13px}
+
+.cart-btn{margin-left:auto;background:#ff6b6b}
+.topbar{display:flex;gap:12px;align-items:center}
+.search{padding:8px 12px;border-radius:8px;border:1px solid #e6e9ef;min-width:220px}
+
+footer{max-width:1100px;margin:26px auto;color:var(--muted);padding:0 18px}
+
+/* Drawer / Modal */
+.drawer{position:fixed;right:16px;bottom:16px}
+.cart-panel{position:fixed;right:0;top:0;height:100%;width:420px;max-width:95%;background:#fff;box-shadow:-20px 0 60px rgba(11,94,215,0.06);transform:translateX(110%);transition:transform .28s ease;padding:18px;overflow:auto}
+.cart-panel.open{transform:translateX(0)}
+.cart-item{display:flex;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid #f2f4f8}
+
+/* Admin note */
+.owner-only{background:#fff3cd;border-left:4px solid #ffe08a;padding:10px;border-radius:6px;margin-top:12px}
+
+/* responsive */
+@media(max-width:640px){.hero{flex-direction:column;align-items:flex-start}.logo{width:48px;height:48px}}
+
+/* small helper */
+code{background:#eef2ff;padding:2px 6px;border-radius:6px;font-size:13px}
+
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">RS</div>
+      <div>
+        <div style="font-weight:700">Ravi Shankar Electronic Shop</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.9)">Lauband, Arangpani, Myorpur — Sonbhadra, UP</div>
+      </div>
+    </div>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#products">Products</a>
+      <a href="#contact">Contact</a>
+      <a href="#owner" id="ownerLink">Owner</a>
+    </nav>
+  </header>  <main>
+    <section class="hero" id="home">
+      <div class="left">
+        <h1>Ravi Shankar Janaral Shop — Online Store</h1>
+        <p>Electronic products, clothes, kirana और घर की ज़रूरी चीज़ें। Cash On Delivery और UPI स्वीकार है।</p><div class="actions">
+      <button class="btn" onclick="scrollToProducts()">Shop Now</button>
+      <button class="btn ghost" onclick="openCart()">View Cart (<span id="cartCount">0</span>)</button>
+    </div>
+
+    <div style="margin-top:12px;font-size:13px;color:var(--muted)">
+      <div><strong>Delivery:</strong> केवल 30 किलोमीटर के रेडियस में डिलीवरी।</div>
+      <div><strong>Contact / Order:</strong> <a id="waLink" href="#">WhatsApp पर पूछें</a></div>
+    </div>
+
+  </div>
+  <div class="right">
+    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='140'><rect rx='12' width='100%' height='100%' fill='%230b5ed7'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='20' fill='white'>Ravi Shankar Shop</text></svg>" alt="logo" style="border-radius:10px;">
+  </div>
+</section>
+
+<section style="margin-top:18px">
+  <div class="topbar">
+    <input id="search" class="search" placeholder="Search products, example: mobile, TV, kirana..." oninput="renderProducts()">
+    <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
+      <div class="muted">Payment: COD / UPI</div>
+    </div>
+  </div>
+
+  <div id="products" class="grid" aria-live="polite"></div>
+</section>
+
+<section style="margin-top:20px">
+  <h3>Policies & Information</h3>
+  <div class="card" style="padding:12px">
+    <p><strong>Store owner:</strong> Ravi Shankar</p>
+    <p><strong>Address:</strong> Lauband, Arangpani, Myorpur, Sonbhadra, Uttar Pradesh</p>
+    <p><strong>Delivery window:</strong> Dispatch within 48 hours. Delivery time: depends on location — within 30 km radius only.</p>
+    <p><strong>Return policy:</strong> नया/खराब माल मिलने पर 3 दिनों में रिप्लेसमेंट या रिफंड।</p>
+    <div class="owner-only"><strong>Owner-only page:</strong> एक अलग पेज में ऑर्डर और लोकेशन डिटेल्स सिर्फ़ ओनर के लिये। "Owner" लिंक पर जाएँ और पासवर्ड डालें।</div>
+  </div>
+</section>
+
+<section id="contact" style="margin-top:18px">
+  <h3>Contact & Order</h3>
+  <div class="card">
+    <p><strong>Owner:</strong> Ravi Shankar</p>
+    <p><strong>Phone / WhatsApp:</strong> +91 6388342510</p>
+    <p><strong>Online Chat:</strong> <a id="waLink2" href="#">WhatsApp Order Link</a></p>
+    <p><strong>Store Hours:</strong> 9:00 AM — 8:00 PM</p>
+  </div>
+</section>
+
+<section id="owner" style="margin-top:18px">
+  <h3>Owner Area</h3>
+  <div class="card">
+    <p>यह पेज मालिक के लिए है — ऑर्डर और ग्राहक लोकेशन देखने का विकल्प। पासवर्ड डालें।</p>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <input id="ownerPass" placeholder="Enter password" style="padding:8px;border-radius:8px;border:1px solid #e6e9ef">
+      <button class="btn" onclick="openOwner()">Open</button>
+    </div>
+    <div id="ownerArea" style="display:none;margin-top:12px"></div>
+  </div>
+</section>
+
+  </main>  <div class="cart-panel" id="cartPanel" aria-hidden="true">
+    <h3>Cart</h3>
+    <div id="cartList"></div>
+    <div style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;color:var(--muted)"><div>Subtotal</div><div id="subtotal">₹0</div></div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <button class="btn" onclick="checkout('cod')">Cash On Delivery</button>
+        <button class="btn ghost" onclick="checkout('upi')">Pay with UPI</button>
+      </div>
+    </div>
+    <div style="margin-top:12px;font-size:13px;color:var(--muted)">Note: Delivery only if your location is within 30 km of the store.</div>
+    <div style="margin-top:12px"><button class="btn ghost" onclick="closeCart()">Close</button></div>
+  </div>  <footer>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>© Ravi Shankar Electronic Shop — Lauband, Arangpani, Myorpur</div>
+      <div class="muted">Designed for quick local online orders</div>
+    </div>
+  </footer>  <script>
+    /* ========= CONFIG - change if needed ========= */
+    const STORE = {
+      name: 'Ravi Shankar Electronic Shop',
+      owner: 'Ravi Shankar',
+      phone: '+91 6388342510',
+      location: {lat: 24.1983, lon: 83.0458}, // Sonbhadra approx - change if you have exact coords
+      deliveryRadiusKm: 30
+    };
+
+    // sample product list (you can add/remove items)
+    const PRODUCTS = [
+      {id:1,title:'LED TV 32 inch',category:'Electronics',price:12999,desc:'Smart LED TV with HD display'},
+      {id:2,title:'Mobile Phone (4GB/64GB)',category:'Electronics',price:7999,desc:'Dual SIM, fast charging'},
+      {id:3,title:'Men's Kurta',category:'Clothes',price:899,desc:'Cotton kurta, comfortable'},
+      {id:4,title:'Rice 5kg (Kirana)',category:'Kirana',price:399,desc:'Basmati style rice 5kg pack'},
+      {id:5,title:'Water Purifier',category:'Electronics',price:4999,desc:'RO+UV purification'},
+      {id:6,title:'LED Bulb (Pack of 4)',category:'Electronics',price:299,desc:'Energy saving LED bulbs'}
+    ];
+
+    /* ======== UI / App logic ======== */
+    const cart = JSON.parse(localStorage.getItem('rse_cart')||'{}');
+
+    function formatINR(n){return '₹'+Number(n).toLocaleString('en-IN')}
+
+    function renderProducts(){
+      const q = document.getElementById('search').value.trim().toLowerCase();
+      const container = document.getElementById('products'); container.innerHTML='';
+      const list = PRODUCTS.filter(p=>(!q) || (p.title+p.desc+p.category).toLowerCase().includes(q));
+      list.forEach(p=>{
+        const card = document.createElement('div'); card.className='card';
+        card.innerHTML = `<div class="product-image">${renderSVGThumb(p.title)}</div>
+          <div style="display:flex;flex-direction:column;flex:1">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="font-weight:700">${p.title}</div>
+              <div style="margin-left:auto;color:var(--muted);font-size:13px">${p.category}</div>
+            </div>
+            <div class="muted">${p.desc}</div>
+            <div style="display:flex;align-items:center;margin-top:8px">
+              <div class="price">${formatINR(p.price)}</div>
+              <button class="btn" style="margin-left:8px" onclick="addToCart(${p.id})">Add</button>
+              <button class="btn ghost cart-btn" onclick="viewDetails(${p.id})">Details</button>
+            </div>
+          </div>`;
+        container.appendChild(card);
+      });
+    }
+
+    function renderSVGThumb(title){
+      const txt = encodeURIComponent(title);
+      return `<img alt='${title}' style='width:100%;height:100%;object-fit:contain;border-radius:8px' src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="360" height="240"><rect rx="12" width="100%" height="100%" fill="%23f3f5fb"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="16" fill="%230b5ed7">${txt}</text></svg>'/>`;
+    }
+
+    function addToCart(id){
+      cart[id] = (cart[id]||0)+1; saveCart(); renderCart(); alert('Added to cart');
+    }
+    function saveCart(){ localStorage.setItem('rse_cart', JSON.stringify(cart)); document.getElementById('cartCount').innerText = Object.values(cart).reduce((a,b)=>a+b,0);
+    }
+
+    function renderCart(){
+      const list = document.getElementById('cartList'); list.innerHTML='';
+      let subtotal=0;
+      for(const idStr in cart){
+        const qty = cart[idStr];
+        const p = PRODUCTS.find(x=>x.id==idStr);
+        if(!p) continue;
+        subtotal += p.price * qty;
+        const div = document.createElement('div'); div.className='cart-item';
+        div.innerHTML = `<div style='width:56px;height:56px;display:flex;align-items:center;justify-content:center;background:#f3f5fb;border-radius:8px'>${p.title.split(' ')[0]}</div>
+          <div style='flex:1'>
+            <div style='font-weight:700'>${p.title}</div>
+            <div class='muted'>${formatINR(p.price)} x ${qty}</div>
+          </div>
+          <div style='display:flex;flex-direction:column;gap:6px'>
+            <button class='btn ghost' onclick='changeQty(${p.id},1)'>+</button>
+            <button class='btn' onclick='changeQty(${p.id},-1)'>-</button>
+          </div>`;
+        list.appendChild(div);
+      }
+      document.getElementById('subtotal').innerText = formatINR(subtotal);
+      saveCart();
+    }
+
+    function changeQty(id,delta){
+      cart[id] = Math.max(0,(cart[id]||0)+delta);
+      if(cart[id]==0) delete cart[id]; saveCart(); renderCart();
+    }
+
+    function openCart(){ document.getElementById('cartPanel').classList.add('open'); document.getElementById('cartPanel').setAttribute('aria-hidden','false'); }
+    function closeCart(){ document.getElementById('cartPanel').classList.remove('open'); document.getElementById('cartPanel').setAttribute('aria-hidden','true'); }
+
+    function checkout(mode){
+      if(Object.keys(cart).length===0){ alert('Cart खाली है'); return; }
+      // get user location and check distance
+      if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(pos=>{
+          const lat = pos.coords.latitude, lon = pos.coords.longitude;
+          const km = distanceKm(lat,lon, STORE.location.lat, STORE.location.lon);
+          if(km > STORE.deliveryRadiusKm){
+            if(!confirm('आपके स्थान की दूरी '+km.toFixed(1)+' km है जो कि डिलीवरी रेडियस के बाहर है। फिर भी ऑर्डर रखना चाहते हैं? (यदि नहीं तो कॉल/WhatsApp करें)')){
+              return;
+            }
+          }
+          placeOrder(mode, {lat,lon,distKm:km});
+        }, err=>{
+          if(!confirm('लोकेशन अनुरोध अस्वीकृत या नहीं मिला — क्या ऑर्डर फॉर्म भरकर जारी रखना चाहेंगे?')) return; placeOrder(mode,null);
+        }, {timeout:10000});
+      } else { if(!confirm('आपके ब्राउज़र में Geolocation उपलब्ध नहीं। ऑर्डर जारी रखें?')) return; placeOrder(mode,null); }
+    }
+
+    function placeOrder(mode, location){
+      // build order object and simulate order placement
+      const items = Object.entries(cart).map(([id,qty])=>{ const p=PRODUCTS.find(x=>x.id==id); return {id, title:p.title, qty, price:p.price}});
+      const subtotal = items.reduce((a,b)=>a + b.price*b.qty,0);
+      const order = {
+        id: 'RS' + Date.now(),
+        items, subtotal, mode, customerLocation: location || null,
+        placedAt: new Date().toISOString()
+      };
+      // save to localStorage orders for owner view
+      const orders = JSON.parse(localStorage.getItem('rse_orders')||'[]'); orders.push(order); localStorage.setItem('rse_orders', JSON.stringify(orders));
+      // clear cart
+      for(const k in cart) delete cart[k]; saveCart(); renderCart(); closeCart();
+      alert('Order placed — Order ID: ' + order.id + '\nOwner will contact you.');
+      // quick open WhatsApp with prefilled message
+      const waMsg = encodeURIComponent(`Hello, मैं रवी शंकर जनरल शॉप से ऑनलाइन आर्डर कर रहा/रही हूँ. Order ID: ${order.id}. कुल: ${formatINR(order.subtotal)}. Payment: ${mode.toUpperCase()}`);
+      window.open('https://wa.me/916388342510?text='+waMsg,'_blank');
+    }
+
+    function distanceKm(lat1,lon1,lat2,lon2){
+      function toRad(v){return v*Math.PI/180}
+      const R=6371; const dLat=toRad(lat2-lat1); const dLon=toRad(lon2-lon1);
+      const a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)*Math.sin(dLon/2);
+      const c=2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)); return R*c;
+    }
+
+    function viewDetails(id){
+      const p = PRODUCTS.find(x=>x.id==id); if(!p) return; alert(p.title + '\n\n' + p.desc + '\nPrice: ' + formatINR(p.price));
+    }
+
+    // Owner area
+    function openOwner(){
+      const pass = document.getElementById('ownerPass').value.trim();
+      const area = document.getElementById('ownerArea');
+      // default password (change or remove). Because this file is offline, owner should change password in code.
+      const OWNER_PASS = 'ravi@123';
+      if(pass !== OWNER_PASS){ alert('Invalid password'); return; }
+      const orders = JSON.parse(localStorage.getItem('rse_orders')||'[]');
+      if(orders.length===0) area.innerHTML = '<div class="muted">कोई ऑर्डर नहीं मिला</div>';
+      else{
+        area.innerHTML = '<h4>Orders</h4>' + orders.map(o => `\n          <div style="padding:8px;background:#fff;border-radius:8px;margin-top:8px">\n            <div style="display:flex;justify-content:space-between">\n              <div><strong>${o.id}</strong><div class="muted">${new Date(o.placedAt).toLocaleString()}</div></div>\n              <div>${formatINR(o.subtotal)}</div>\n            </div>\n            <div style="margin-top:8px">\n              <div class="muted">Items:</div>\n              ${o.items.map(it=>`<div>${it.title} x ${it.qty} — ${formatINR(it.price*it.qty)}</div>`).join('')}\n            </div>\n            <div style="margin-top:8px" class="muted">Customer location: ${o.customerLocation ? `${o.customerLocation.lat.toFixed(4)}, ${o.customerLocation.lon.toFixed(4)} (dist ${o.customerLocation.distKm?.toFixed(1)} km)` : 'Not provided'}</div>\n          </div>`).join('');
+      }
+      area.style.display='block';
+    }
+
+    // small helpers
+    document.getElementById('waLink').href = 'https://wa.me/916388342510';
+    document.getElementById('waLink').innerText = STORE.phone + ' (WhatsApp)';
+    document.getElementById('waLink2').href = 'https://wa.me/916388342510';
+    document.getElementById('waLink2').innerText = 'Chat on WhatsApp';
+
+    function scrollToProducts(){ location.hash='#products'; document.getElementById('search').focus(); }
+
+    // initial render
+    saveCart(); renderProducts(); renderCart();
+
+  </script></body>
+</html>
