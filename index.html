@@ -8,7 +8,7 @@
   <!-- SEO Meta Tags -->
   <meta name="description" content="Generate scroll-to-text fragment links with ease. Create highlightable URL links like #:~:text= for Chrome and modern browsers.">
   <meta name="keywords" content="text fragment, scroll to text, #:~:text, URL highlight, link generator, Chrome fragment, markdown link generator">
-  <meta name="author" content="Yaroslav Podorvanov, OpenAI ChatGPT">
+  <meta name="author" content="Yaroslav Podorvanov, OpenAI ChatGPT, Anthropic Claude">
 
   <!-- Open Graph -->
   <meta property="og:title" content="Text Fragment Link Generator" />
@@ -37,11 +37,419 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="manifest" href="/manifest.json">
-  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileColor"  content="#1a1a2e">
   <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#1a1a2e">
 
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:        #0e0f14;
+      --surface:   #16181f;
+      --border:    #2a2d3a;
+      --border2:   #353847;
+      --text:      #e8e9f0;
+      --muted:     #7a7d92;
+      --accent:    #f0c040;
+      --accent-dim:#c99e30;
+      --green:     #4ade80;
+      --red:       #f87171;
+      --radius:    10px;
+      --mono:      'DM Mono', monospace;
+      --sans:      'DM Sans', sans-serif;
+      --serif:     'Fraunces', serif;
+    }
+
+    :root[data-theme="light"] {
+      --bg:        #f5f4f0;
+      --surface:   #ffffff;
+      --border:    #ddd9d0;
+      --border2:   #b8b3a8;
+      --text:      #1a1814;
+      --muted:     #7a7468;
+      --accent:    #b8860b;
+      --accent-dim:#9a700a;
+      --green:     #16a34a;
+      --red:       #dc2626;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      transition: background .25s, color .25s;
+    }
+
+    /* ── Layout ── */
+    .page {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 56px 24px 80px;
+    }
+
+    /* ── Header ── */
+    header {
+      margin-bottom: 48px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(240,192,64,.12);
+      border: 1px solid rgba(240,192,64,.25);
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .08em;
+      padding: 4px 10px;
+      border-radius: 100px;
+      margin-bottom: 20px;
+    }
+    .badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    h1 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(28px, 5vw, 38px);
+      line-height: 1.15;
+      letter-spacing: -.02em;
+      margin-bottom: 12px;
+    }
+    h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 460px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      margin-bottom: 16px;
+      transition: background .25s, border-color .25s;
+    }
+
+    /* ── Field ── */
+    .field { margin-bottom: 20px; }
+    .field:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    label .hint {
+      text-transform: none;
+      letter-spacing: 0;
+      font-weight: 400;
+      font-size: 11px;
+      color: var(--border2);
+      margin-left: 6px;
+    }
+
+    input, textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13.5px;
+      padding: 11px 14px;
+      outline: none;
+      transition: border-color .2s;
+      resize: none;
+    }
+    input::placeholder, textarea::placeholder { color: var(--border2); }
+    input:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(240,192,64,.08);
+    }
+
+    /* ── Advanced toggle ── */
+    .advanced-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: var(--sans);
+      font-size: 13px;
+      cursor: pointer;
+      padding: 0;
+      margin-bottom: 20px;
+      transition: color .2s;
+    }
+    .advanced-toggle:hover { color: var(--text); }
+    .advanced-toggle svg { transition: transform .25s; }
+    .advanced-toggle.open svg { transform: rotate(180deg); }
+
+    .advanced-fields {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height .3s ease, opacity .3s ease;
+      opacity: 0;
+    }
+    .advanced-fields.open { max-height: 300px; opacity: 1; }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    /* ── Generate button ── */
+    .btn-generate {
+      width: 100%;
+      background: var(--accent);
+      color: #0e0f14;
+      border: none;
+      border-radius: var(--radius);
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 15px;
+      padding: 13px;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+      margin-top: 4px;
+    }
+    .btn-generate:hover { background: #f5ca50; }
+    .btn-generate:active { transform: scale(.98); }
+
+    /* ── Output card ── */
+    .output-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      margin-bottom: 16px;
+      display: none;
+      animation: fadeUp .35s ease both;
+    }
+    .output-card.visible { display: block; }
+
+    .output-label {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .url-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text);
+      word-break: break-all;
+      margin-bottom: 12px;
+      min-height: 44px;
+    }
+    .url-box .fragment-part { color: var(--accent); }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .2s;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      text-decoration: none;
+    }
+    /* ── Theme toggle ── */
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s;
+      z-index: 100;
+    }
+    .theme-toggle:hover { border-color: var(--border2); color: var(--text); }
+    .theme-toggle .icon-sun  { display: none; }
+    .theme-toggle .icon-moon { display: block; }
+    [data-theme="light"] .theme-toggle .icon-sun  { display: block; }
+    [data-theme="light"] .theme-toggle .icon-moon { display: none; }
+
+    .btn:hover { border-color: var(--border2); background: var(--bg); filter: brightness(1.06); }
+    .btn.success { color: var(--green); border-color: rgba(74,222,128,.3); }
+    .btn-test {
+      color: var(--accent);
+      border-color: rgba(240,192,64,.25);
+      background: rgba(240,192,64,.06);
+    }
+    .btn-test:hover { background: rgba(240,192,64,.12); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 20px 0;
+    }
+
+    .format-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .format-row:last-child { border-bottom: none; }
+
+    .format-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      background: rgba(128,128,128,.08);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 2px 8px;
+      color: var(--muted);
+      min-width: 64px;
+      text-align: center;
+    }
+
+    .format-value {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-copy-sm {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: all .18s;
+      white-space: nowrap;
+    }
+    .btn-copy-sm:hover { border-color: var(--border2); color: var(--text); }
+    .btn-copy-sm.ok { color: var(--green); border-color: rgba(74,222,128,.3); }
+
+    /* ── Info section ── */
+    .info {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+    }
+
+    .info h2 {
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .info p {
+      color: var(--muted);
+      font-size: 14.5px;
+      margin-bottom: 12px;
+      line-height: 1.7;
+    }
+    .info p:last-child { margin-bottom: 0; }
+
+    code {
+      background: rgba(240,192,64,.1);
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 12.5px;
+      padding: 2px 6px;
+      border-radius: 5px;
+    }
+
+    .use-cases {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .use-case {
+      background: rgba(128,128,128,.07);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 12.5px;
+      color: var(--muted);
+      padding: 5px 13px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      color: var(--border2);
+      font-size: 13px;
+    }
+    footer a { color: var(--border2); text-decoration: underline; text-underline-offset: 3px; }
+    footer a:hover { color: var(--muted); }
+
+    /* ── Responsive ── */
+    @media (max-width: 500px) {
+      .field-row { grid-template-columns: 1fr; }
+      .page { padding-top: 36px; }
+    }
+  </style>
 
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-GG19PYLZZ0"></script>
@@ -53,146 +461,260 @@
     gtag('config', 'G-GG19PYLZZ0');
   </script>
 </head>
-<body class="bg-gray-50 text-gray-900 p-6">
+<body>
+<button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode" aria-label="Toggle theme">
+  <!-- moon -->
+  <svg class="icon-moon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <path d="M14 10.5A6.5 6.5 0 0 1 5.5 2a6.5 6.5 0 1 0 8.5 8.5z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <!-- sun -->
+  <svg class="icon-sun" width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.4"/>
+    <path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3.22 3.22l1.06 1.06M11.72 11.72l1.06 1.06M12.78 3.22l-1.06 1.06M4.28 11.72l-1.06 1.06" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+  </svg>
+</button>
+<div class="page">
 
-  <div class="max-w-2xl mx-auto space-y-6">
-    <h1 class="text-2xl font-bold">Text Fragment Link Generator</h1>
+  <header>
+    <div class="badge">Text Fragments · #:~:text=</div>
+    <h1>Generate links that<br/><em>highlight text</em> on any page</h1>
+    <p class="subtitle">Paste a URL and the text you want to highlight. We'll build a shareable link that scrolls straight to it.</p>
+  </header>
 
-    <!-- GitHub Star Button -->
-    <div>
-      <iframe src="https://ghbtns.com/github-btn.html?user=link-to-text&repo=link-to-text.github.io&type=star&count=true"
-        width="150"
-        height="33"
-        title="GitHub"
-      ></iframe>
+  <!-- Input card -->
+  <div class="card">
+    <div class="field">
+      <label>Page URL</label>
+      <input type="url" id="inputUrl" placeholder="https://example.com/article" autocomplete="off" spellcheck="false" />
     </div>
 
-    <!-- Input Fields -->
-    <div class="space-y-4">
-      <div>
-        <label class="block text-sm font-medium mb-1" for="js-input-url">Input URL</label>
-        <input id="js-input-url" type="text" placeholder="https://example.com/page"
-               class="w-full border px-3 py-2 rounded shadow-sm" />
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium mb-1" for="js-input-text-fragment">Text Fragment</label>
-        <input id="js-input-text-fragment" type="text" placeholder="exact text to highlight"
-               class="w-full border px-3 py-2 rounded shadow-sm" />
-      </div>
-
-      <button id="generate" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-        Generate
-      </button>
+    <div class="field">
+      <label>Text to highlight</label>
+      <textarea id="inputText" rows="2" placeholder="Paste the exact text you want to highlight…"></textarea>
     </div>
 
-    <!-- Output URL -->
-    <div class="relative">
-      <label class="block text-sm font-medium mb-1" for="js-output-url">Generated URL</label>
-      <input id="js-output-url" type="text" readonly
-             class="w-full border px-3 py-2 rounded bg-gray-100" />
-      <div class="flex items-center mt-2 space-x-3">
-        <button onclick="copyOutput()" class="bg-gray-300 px-2 py-1 rounded text-sm hover:bg-gray-400">Copy</button>
-        <a id="js-output-test-link" href="javascript:void(0);" target="_blank"
-           class="text-blue-600 underline text-sm hover:text-blue-800 hidden">
-          Test link with selected text
-        </a>
-        <span id="js-copy-massage" class="text-green-600 text-sm hidden">Copied!</span>
-      </div>
-    </div>
+    <!-- Advanced: prefix / suffix -->
+    <button class="advanced-toggle" id="advancedToggle" type="button" aria-expanded="false">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Advanced — prefix &amp; suffix context
+    </button>
 
-    <!-- HTML Block -->
-    <div>
-      <label class="block font-semibold mb-1">HTML:</label>
-      <div class="relative bg-gray-100 p-4 rounded">
-        <pre id="js-output-html" class="whitespace-pre-wrap break-words text-sm"></pre>
-        <button onclick="copyText('js-output-html')" class="absolute top-2 right-2 text-xs bg-gray-300 px-2 py-1 rounded hover:bg-gray-400">Copy</button>
+    <div class="advanced-fields" id="advancedFields">
+      <div class="field-row" style="margin-bottom:20px">
+        <div class="field">
+          <label>Prefix <span class="hint">text before</span></label>
+          <input type="text" id="inputPrefix" placeholder="text before…" spellcheck="false" />
+        </div>
+        <div class="field">
+          <label>Suffix <span class="hint">text after</span></label>
+          <input type="text" id="inputSuffix" placeholder="text after…" spellcheck="false" />
+        </div>
       </div>
     </div>
 
-    <!-- Markdown Block -->
-    <div>
-      <label class="block font-semibold mb-1">Markdown:</label>
-      <div class="relative bg-gray-100 p-4 rounded">
-        <pre id="js-output-markdown" class="whitespace-pre-wrap break-words text-sm"></pre>
-        <button onclick="copyText('js-output-markdown')" class="absolute top-2 right-2 text-xs bg-gray-300 px-2 py-1 rounded hover:bg-gray-400">Copy</button>
-      </div>
-    </div>
-
-    <!-- SEO Copy -->
-    <section class="mt-12 text-gray-600 text-sm leading-relaxed">
-      <h2 class="text-base font-semibold text-gray-800 mb-2">What is a Text Fragment link?</h2>
-      <p>
-        A Text Fragment (scroll-to-text) link lets you create URLs that automatically scroll to and highlight specific
-        text on a web page using the <code>#:~:text=</code> syntax. Supported by Chrome and other Chromium-based browsers,
-        this feature is perfect for sharing quotes, emphasizing content, or linking directly to important passages.
-      </p>
-      <p class="mt-2">
-        Use our free Text Fragment URL Generator to create highlightable links for documentation, social media, blogs,
-        academic citations, support tickets, or internal tools. No extensions needed.
-      </p>
-    </section>
-
-    <!-- Footer -->
-    <footer class="pt-12 text-sm text-gray-500 border-t">
-      Created with ❤️ using ChatGPT · <a class="underline" href="https://github.com/link-to-text/link-to-text.github.io" target="_blank">Source Code</a>
-    </footer>
+    <button class="btn-generate" id="btnGenerate">Generate link →</button>
   </div>
 
-  <script>
-      {
-          const $inputURL = document.getElementById("js-input-url");
-          const $inputTextFragment = document.getElementById("js-input-text-fragment");
+  <!-- Output card -->
+  <div class="output-card" id="outputCard">
+    <div class="output-label">Generated URL</div>
+    <div class="url-box" id="urlDisplay"></div>
 
-          const $outputURL = document.getElementById("js-output-url");
-          const $outputTestLink = document.getElementById("js-output-test-link");
-          const $outputHTML = document.getElementById("js-output-html");
-          const $outputMarkdown = document.getElementById("js-output-markdown");
+    <div class="actions">
+      <button class="btn" id="btnCopyUrl">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M2 10V2h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Copy URL
+      </button>
+      <a class="btn btn-test" id="btnTest" href="#" target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5.5 2.5h-3a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1v-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M8.5 1.5h4m0 0v4m0-4L6 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Test link
+      </a>
+    </div>
 
-          const $copyMessage = document.getElementById("js-copy-massage");
+    <div class="divider"></div>
 
-          document.getElementById("generate").addEventListener("click", () => {
-              const url = $inputURL.value.trim();
-              const text = $inputTextFragment.value.trim();
+    <!-- HTML -->
+    <div class="format-row">
+      <span class="format-tag">HTML</span>
+      <span class="format-value" id="htmlValue"></span>
+      <button class="btn-copy-sm" data-target="htmlValue">Copy</button>
+    </div>
 
-              if (!url || !text) {
-                  $outputURL.value = "";
-                  $outputHTML.textContent = "";
-                  $outputMarkdown.textContent = "";
-                  $outputTestLink.classList.add("hidden");
-                  $copyMessage.classList.add("hidden");
+    <!-- Markdown -->
+    <div class="format-row">
+      <span class="format-tag">Markdown</span>
+      <span class="format-value" id="mdValue"></span>
+      <button class="btn-copy-sm" data-target="mdValue">Copy</button>
+    </div>
 
-                  return;
-              }
+    <!-- Plain text -->
+    <div class="format-row">
+      <span class="format-tag">Plain</span>
+      <span class="format-value" id="plainValue"></span>
+      <button class="btn-copy-sm" data-target="plainValue">Copy</button>
+    </div>
+  </div>
 
-              const encodedText = encodeURIComponent(text);
-              const fullUrl = `${url}#:~:text=${encodedText}`;
-              const htmlLink = `<a href="${fullUrl}">${text}</a>`;
-              const mdLink = `[${text}](${fullUrl})`;
+  <!-- Info -->
+  <div class="info">
+    <h2>What is a Text Fragment link?</h2>
+    <p>
+      A Text Fragment (scroll-to-text) link uses the <code>#:~:text=</code> syntax to automatically scroll to and highlight specific text on any web page — no browser extension required.
+    </p>
+    <p>
+      Supported in Chrome, Edge, Opera, and other Chromium-based browsers. Perfect for sharing quotes, linking to documentation, adding academic citations, or pointing directly to the relevant part of a long article.
+    </p>
+    <p>
+      Use <strong>prefix</strong> and <strong>suffix</strong> to disambiguate when the same phrase appears multiple times on a page. The fragment format is: <code>prefix-,start,end,-suffix</code>.
+    </p>
+    <div class="use-cases">
+      <span class="use-case">Documentation</span>
+      <span class="use-case">Academic citations</span>
+      <span class="use-case">Support tickets</span>
+      <span class="use-case">Social media</span>
+      <span class="use-case">Blog posts</span>
+      <span class="use-case">Internal tools</span>
+    </div>
+  </div>
 
-              $outputURL.value = fullUrl;
-              $outputHTML.textContent = htmlLink;
-              $outputMarkdown.textContent = mdLink;
+  <footer>
+    <p><a href="https://github.com/link-to-text/link-to-text.github.io">Source on GitHub</a> · MIT License · Made with <a href="https://claude.ai" target="_blank" rel="noopener">Claude</a></p>
+  </footer>
 
-              $outputTestLink.href = fullUrl;
-              $outputTestLink.classList.remove("hidden");
+</div>
 
-              $copyMessage.classList.add("hidden");
-          });
+<script>
+  // ── Theme toggle ──
+  const themeToggle = document.getElementById('themeToggle');
+  const root = document.documentElement;
 
-          function copyText(id) {
-              const text = document.getElementById(id).textContent;
-              navigator.clipboard.writeText(text);
-          }
+  const savedTheme = localStorage.getItem('theme') ||
+    (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  root.setAttribute('data-theme', savedTheme);
 
-          function copyOutput() {
-              const text = $outputURL.value;
-              navigator.clipboard.writeText(text);
+  themeToggle.addEventListener('click', () => {
+    const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+  });
 
-              $copyMessage.classList.remove("hidden");
-              setTimeout(() => $copyMessage.classList.add("hidden"), 2000);
-          }
-      }
-  </script>
+  // ── DOM refs ──
+  const inputUrl    = document.getElementById('inputUrl');
+  const inputText   = document.getElementById('inputText');
+  const inputPrefix = document.getElementById('inputPrefix');
+  const inputSuffix = document.getElementById('inputSuffix');
+  const btnGenerate = document.getElementById('btnGenerate');
+  const outputCard  = document.getElementById('outputCard');
+  const urlDisplay  = document.getElementById('urlDisplay');
+  const btnCopyUrl  = document.getElementById('btnCopyUrl');
+  const btnTest     = document.getElementById('btnTest');
+  const htmlValue   = document.getElementById('htmlValue');
+  const mdValue     = document.getElementById('mdValue');
+  const plainValue  = document.getElementById('plainValue');
+  const advToggle   = document.getElementById('advancedToggle');
+  const advFields   = document.getElementById('advancedFields');
+
+  // ── Advanced toggle ──
+  advToggle.addEventListener('click', () => {
+    const open = advFields.classList.toggle('open');
+    advToggle.classList.toggle('open', open);
+    advToggle.setAttribute('aria-expanded', open);
+  });
+
+  // ── Generate ──
+  function generate() {
+    const rawUrl    = inputUrl.value.trim();
+    const text      = inputText.value.trim();
+    const prefix    = inputPrefix.value.trim();
+    const suffix    = inputSuffix.value.trim();
+
+    if (!rawUrl || !text) {
+      shake(rawUrl ? inputText : inputUrl);
+      return;
+    }
+
+    // Build text fragment value
+    let parts = [];
+    if (prefix) parts.push(encodeURIComponent(prefix) + '-,');
+    parts.push(encodeURIComponent(text));
+    if (suffix) parts.push(',-' + encodeURIComponent(suffix));
+    const fragment = '#:~:text=' + parts.join('');
+
+    // Strip existing fragment from URL
+    let base = rawUrl.split('#')[0];
+    const fullUrl = base + fragment;
+
+    // Render URL with highlighted fragment part
+    urlDisplay.innerHTML =
+      '<span style="opacity:.7">' + escHtml(base) + '</span>' +
+      '<span class="fragment-part">' + escHtml(fragment) + '</span>';
+
+    // Formats
+    const label = text.length > 60 ? text.slice(0, 57) + '…' : text;
+    const htmlStr = `<a href="${escHtml(fullUrl)}">${escHtml(label)}</a>`;
+    const mdStr   = `[${label}](${fullUrl})`;
+
+    htmlValue.textContent  = htmlStr;
+    mdValue.textContent    = mdStr;
+    plainValue.textContent = fullUrl;
+
+    btnTest.href = fullUrl;
+
+    outputCard.classList.add('visible');
+    outputCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // Store for copy
+    btnCopyUrl.dataset.url = fullUrl;
+  }
+
+  btnGenerate.addEventListener('click', generate);
+  [inputUrl, inputText, inputPrefix, inputSuffix].forEach(el => {
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generate(); }
+    });
+  });
+
+  // ── Copy URL ──
+  btnCopyUrl.addEventListener('click', () => {
+    copyText(btnCopyUrl.dataset.url, btnCopyUrl, 'Copy URL', '✓ Copied!');
+  });
+
+  // ── Small copy buttons ──
+  document.querySelectorAll('.btn-copy-sm').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const el = document.getElementById(btn.dataset.target);
+      copyText(el.textContent, btn, 'Copy', '✓ Copied');
+    });
+  });
+
+  // ── Helpers ──
+  function copyText(text, btn, original, success) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = success;
+      btn.classList.add('ok', 'success');
+      setTimeout(() => {
+        btn.textContent = original;
+        btn.classList.remove('ok', 'success');
+      }, 2000);
+    });
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function shake(el) {
+    el.style.animation = 'none';
+    el.focus();
+    el.style.borderColor = 'var(--red)';
+    el.style.boxShadow   = '0 0 0 3px rgba(248,113,113,.12)';
+    setTimeout(() => {
+      el.style.borderColor = '';
+      el.style.boxShadow   = '';
+    }, 1200);
+  }
+</script>
 </body>
 </html>
